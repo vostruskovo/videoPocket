@@ -239,6 +239,7 @@
         .input-group-flex {
             flex: 2;
             min-width: 180px;
+            position: relative;
         }
 
         .input-label {
@@ -256,6 +257,32 @@
             padding: 0.75rem 1rem;
             width: 100%;
             color: white;
+            padding-right: 2rem;
+        }
+
+        .clear-field-btn {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 4px 6px;
+            border-radius: 20px;
+            transition: 0.2s;
+            display: none;
+        }
+
+        .clear-field-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .quick-input:not(:placeholder-shown) + .clear-field-btn,
+        .quick-input:focus + .clear-field-btn {
+            display: block;
         }
 
         .btn-sm {
@@ -754,82 +781,6 @@
                 flex-wrap: wrap;
             }
         }
-
-
-
-
-
-
-
-
-        .upload-btn {
-    background: var(--primary);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 2rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    transition: 0.2s;
-    border: none;
-    outline: none;  /* Remove default focus outline */
-}
-
-.upload-btn:focus {
-    outline: none;  /* Remove focus outline */
-    box-shadow: none;  /* Remove any box shadow on focus */
-}
-
-.upload-btn:active {
-    transform: scale(0.98);  /* Optional: subtle press effect */
-}
-
-
-
-
-input[type="file"] {
-    display: none;
-}
-
-
-
-
-.upload-btn {
-    background: var(--primary);
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 2rem;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    transition: 0.2s;
-    border: none;
-    outline: none;
-}
-
-.upload-btn:focus,
-.upload-btn:focus-visible,
-.upload-btn:active {
-    outline: none;
-    box-shadow: none;
-}
-
-.upload-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-}
-
-.upload-btn:active {
-    transform: scale(0.98);
-}
-
-input[type="file"] {
-    display: none;
-}
     </style>
 </head>
 <body>
@@ -892,11 +843,13 @@ input[type="file"] {
             <div class="input-strip">
                 <div class="input-group-flex">
                     <div class="input-label">VIDEO URL</div>
-                    <input type="text" id="videoUrl" class="quick-input" placeholder="https://youtube.com/watch?v=..." onkeydown="if(event.key==='Enter') addVideo()">
+                    <input type="text" id="videoUrl" class="quick-input" placeholder="https://youtube.com/watch?v=..." onkeydown="handleInputKeydown(event, 'url')">
+                    <button class="clear-field-btn" onclick="clearField('videoUrl')" title="Clear field (ESC)"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="input-group-flex">
                     <div class="input-label">TITLE (optional)</div>
-                    <input type="text" id="videoTitle" class="quick-input" placeholder="Auto-fetch if empty">
+                    <input type="text" id="videoTitle" class="quick-input" placeholder="Auto-fetch if empty" onkeydown="handleInputKeydown(event, 'title')">
+                    <button class="clear-field-btn" onclick="clearField('videoTitle')" title="Clear field (ESC)"><i class="fas fa-times"></i></button>
                 </div>
                 <button class="btn-sm" id="saveVideoBtn" onclick="addVideo()"><i class="fas fa-plus-circle"></i> Save</button>
             </div>
@@ -936,12 +889,12 @@ input[type="file"] {
         </div>
     </div>
 
-    <!-- SETTINGS MODAL - NO BORDER -->
+    <!-- SETTINGS MODAL -->
     <div id="settingsModal" class="modal-glass">
         <div class="modal-card">
             <h3><i class="fas fa-user-edit"></i> Profile Settings</h3>
             
-            <!-- Avatar Preview - No Border -->
+            <!-- Avatar Preview -->
             <div style="display: flex; justify-content: center; margin: 1rem 0;">
                 <img id="modalAvatar" class="avatar-preview-circle" style="width: 120px; height: 120px;" src="" alt="avatar">
             </div>
@@ -972,7 +925,7 @@ input[type="file"] {
                 <canvas id="cropCanvas" style="display:none; width:200px; height:200px; border-radius:50%; margin:0 auto;"></canvas>
             </div>
             
-            <!-- Advanced Editor Mode - No Border -->
+            <!-- Advanced Editor Mode -->
             <div id="advancedMode" class="avatar-editor-container" style="display:none;">
                 <button class="upload-btn" style="width:100%; margin-bottom:1rem;" onclick="document.getElementById('advancedFileInput').click()">
                     <i class="fas fa-camera"></i> Upload New Photo
@@ -1067,6 +1020,25 @@ input[type="file"] {
         let advRotation = 0;
         let advFlipH = false;
         let advFlipV = false;
+
+        // ========== ESCAPE KEY HANDLER FOR INPUT FIELDS ==========
+        function handleInputKeydown(event, fieldType) {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                if (fieldType === 'url') {
+                    document.getElementById('videoUrl').value = '';
+                    toast('URL field cleared');
+                } else if (fieldType === 'title') {
+                    document.getElementById('videoTitle').value = '';
+                    toast('Title field cleared');
+                }
+            }
+        }
+        
+        function clearField(fieldId) {
+            document.getElementById(fieldId).value = '';
+            toast(`${fieldId === 'videoUrl' ? 'URL' : 'Title'} field cleared`);
+        }
 
         async function sha256(m) {
             const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(m));
@@ -1580,9 +1552,11 @@ input[type="file"] {
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     const activeModals = document.querySelectorAll('.modal-glass.active');
-                    activeModals.forEach(modal => {
-                        closeModal(modal.id);
-                    });
+                    if (activeModals.length > 0) {
+                        activeModals.forEach(modal => {
+                            closeModal(modal.id);
+                        });
+                    }
                 }
             });
         });
