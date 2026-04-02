@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>VideoPocket | Smart Video Manager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0a0c15;
+            --bg-surface: #11131f;
+            --card-bg: #181c2c;
+            --primary: #6366f1;
+            --primary-glow: #818cf8;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-dim: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(17, 19, 31, 0.85);
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-surface); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        .login-container {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 40%, #0f1222, #05060a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+            transition: opacity 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .login-container.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-dim);
+            border-radius: 2rem;
+            padding: 2.2rem;
+            width: 92%;
+            max-width: 440px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
+        }
+        .logo-icon { font-size: 3rem; background: linear-gradient(135deg, #818cf8, #34d399); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .auth-tab-group { display: flex; gap: 0.75rem; background: rgba(0,0,0,0.3); padding: 0.4rem; border-radius: 3rem; margin-bottom: 1.8rem; }
+        .auth-tab { flex:1; text-align:center; padding:0.6rem; border-radius:2rem; font-weight:600; background:transparent; border:none; color:var(--text-secondary); cursor:pointer; }
+        .auth-tab.active { background: var(--primary); color:white; box-shadow:0 2px 8px rgba(99,102,241,0.3); }
+        .input-modern { width:100%; padding:0.9rem 1rem; background:rgba(10,12,21,0.7); border:1px solid var(--border-dim); border-radius:1rem; color:white; }
+        .input-modern:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,0.2); }
+        .btn-glow { background:linear-gradient(105deg, var(--primary), var(--primary-dark)); border:none; padding:0.9rem; border-radius:1.2rem; font-weight:600; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:0.2s; }
+        .btn-glow:hover { transform:translateY(-2px); box-shadow:0 10px 20px -5px rgba(99,102,241,0.4); }
+        .btn-secondary { background:linear-gradient(105deg, #334155, #1e293b); }
+        .app-container { opacity:0; transition:opacity 0.5s ease; min-height:100vh; display:flex; flex-direction:column; }
+        .app-container.visible { opacity:1; }
+        .glass-header {
+            background: rgba(10,12,21,0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-dim);
+            padding: 0.75rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        .logo-sm { font-weight:700; font-size:1.3rem; background:linear-gradient(135deg,#a5b4fc,#34d399); -webkit-background-clip:text; background-clip:text; color:transparent; }
+        .user-badge { display:flex; align-items:center; gap:1rem; background:rgba(255,255,255,0.04); padding:0.3rem 1rem 0.3rem 0.6rem; border-radius:2rem; }
+        .avatar { width:38px; height:38px; border-radius:50%; object-fit:cover; cursor:pointer; }
+        .main-content { flex:1; padding:1.5rem 2rem; max-width:1600px; margin:0 auto; width:100%; }
+        .input-strip {
+            background: var(--bg-surface);
+            border-radius: 1.5rem;
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
+            border: 1px solid var(--border-dim);
+            margin-bottom: 1.5rem;
+        }
+        .input-group-flex { flex:2; min-width:180px; position:relative; }
+        .input-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); margin-bottom:0.3rem; }
+        .quick-input { background:rgba(0,0,0,0.4); border:1px solid var(--border-dim); border-radius:1rem; padding:0.75rem 1rem; width:100%; color:white; padding-right:2rem; }
+        .clear-field-btn { position:absolute; right:12px; bottom:12px; background:rgba(255,255,255,0.1); border:none; color:var(--text-secondary); cursor:pointer; font-size:0.8rem; padding:4px 6px; border-radius:20px; display:none; }
+        .clear-field-btn:hover { background:var(--danger); color:white; }
+        .quick-input:not(:placeholder-shown) + .clear-field-btn, .quick-input:focus + .clear-field-btn { display:block; }
+        .btn-sm { padding:0.75rem 1.5rem; border-radius:1rem; font-weight:600; background:var(--primary); border:none; color:white; cursor:pointer; display:flex; gap:8px; align-items:center; }
+        
+        .import-section {
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(16,185,129,0.05));
+            border-radius: 1.2rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-dim);
+        }
+        .import-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+        .import-header i { font-size: 1.2rem; color: var(--primary); }
+        .import-method-selector { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .method-btn { background: rgba(255,255,255,0.1); border: none; padding: 0.4rem 1rem; border-radius: 2rem; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem; }
+        .method-btn.active { background: var(--primary); color: white; }
+        .import-input-group { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+        .import-input { flex:1; background:rgba(0,0,0,0.4); border:1px solid var(--border-dim); border-radius:2rem; padding:0.7rem 1rem; color:white; font-size:0.85rem; }
+        .manual-urls-area textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border-dim); border-radius: 1rem; padding: 0.7rem; color: white; font-size: 0.8rem; resize: vertical; margin-bottom: 0.5rem; }
+        .import-progress { margin-top:0.8rem; font-size:0.75rem; color:var(--text-secondary); display:none; }
+        
+        .backup-section, .playlist-bar, .share-section {
+            background: var(--bg-surface);
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-dim);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+        .backup-buttons { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+        .backup-btn { background:rgba(255,255,255,0.1); border:none; padding:0.5rem 1rem; border-radius:2rem; color:var(--text-secondary); cursor:pointer; font-size:0.8rem; display:inline-flex; align-items:center; gap:6px; }
+        .backup-btn:hover { background:var(--primary); color:white; }
+        .playlist-selector { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; flex: 1; }
+        .select-modern { background:rgba(0,0,0,0.5); border:1px solid var(--border-dim); padding:0.6rem 2rem 0.6rem 1rem; border-radius:2rem; color:white; font-weight:500; cursor:pointer; }
+        .playlist-action-btn { background:rgba(255,255,255,0.1); border:none; padding:0.4rem 0.8rem; border-radius:2rem; color:var(--text-secondary); cursor:pointer; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px; }
+        .playlist-action-btn:hover { background:var(--primary); color:white; }
+        .action-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1.8rem; }
+        .search-wrap { position:relative; flex:2; min-width:200px; }
+        .search-wrap i { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-secondary); }
+        .search-input-mod { width:100%; padding:0.7rem 1rem 0.7rem 2.4rem; background:rgba(0,0,0,0.4); border:1px solid var(--border-dim); border-radius:2rem; color:white; }
+        .filter-group { display:flex; gap:0.5rem; flex-wrap:wrap; }
+        .pill { background:transparent; border:1px solid var(--border-dim); padding:0.45rem 1.2rem; border-radius:2rem; color:var(--text-secondary); cursor:pointer; }
+        .pill.active, .pill:hover { background:var(--primary); border-color:var(--primary); color:white; }
+        .video-grid-modern { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem; }
+        .video-card-mod {
+            background: var(--card-bg);
+            border-radius: 1.2rem;
+            overflow: hidden;
+            border: 1px solid var(--border-dim);
+            transition: all 0.25s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        .video-card-mod:hover { transform:translateY(-4px); border-color:var(--primary); box-shadow:0 15px 30px -12px rgba(0,0,0,0.5); }
+        .video-card-mod.selected { border-color:var(--primary); background:rgba(99,102,241,0.1); }
+        .card-media { position:relative; cursor:pointer; height:170px; background:#0a0c15; display: flex; align-items: center; justify-content: center; }
+        .card-media img { width:100%; height:100%; object-fit:cover; }
+        .play-btn-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:0.2s; }
+        .card-media:hover .play-btn-overlay { opacity:1; }
+        .card-info { padding:1rem; cursor: pointer; }
+        .title-row { font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:0.5rem; display:flex; align-items:center; gap:6px; }
+        .title-text { flex:1; overflow:hidden; text-overflow:ellipsis; }
+        .title-edit-btn { background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:0.7rem; opacity:0; transition:0.2s; }
+        .video-card-mod:hover .title-edit-btn { opacity:1; }
+        .meta-row { display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-secondary); margin:0.5rem 0; flex-wrap:wrap; gap:6px; }
+        .playlist-label { display:inline-flex; align-items:center; gap:4px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); padding:0.2rem 0.6rem; border-radius:1rem; font-size:0.65rem; color:var(--primary-glow); margin-top:0.4rem; width:fit-content; cursor:pointer; }
+        .card-actions-row { display:flex; justify-content:space-between; margin-top:0.8rem; border-top:1px solid var(--border-dim); padding-top:0.7rem; }
+        .icon-btn { background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1rem; padding:0.3rem 0.5rem; border-radius:0.5rem; }
+        .icon-btn:hover { background:rgba(255,255,255,0.05); }
+        .icon-btn.del:hover { color:var(--danger); background:rgba(239,68,68,0.1); }
+        .checkbox-select { position:absolute; top:10px; left:12px; width:26px; height:26px; background:rgba(0,0,0,0.7); border-radius:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5; border:1.5px solid white; }
+        .checkbox-select.checked { background:var(--primary); border-color:var(--primary); }
+        .modal-glass { position:fixed; inset:0; background:rgba(0,0,0,0.9); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:200; opacity:0; pointer-events:none; transition:0.2s; }
+        .modal-glass.active { opacity:1; pointer-events:all; }
+        .modal-card { background:var(--bg-surface); border-radius:1.8rem; padding:1.8rem; width:90%; max-width:500px; border:1px solid var(--border-dim); }
+        .toast-fixed { position:fixed; bottom:20px; right:20px; z-index:300; display:flex; flex-direction:column; gap:8px; }
+        .toast-item { background:#1e293b; padding:0.8rem 1.2rem; border-radius:1rem; border-left:4px solid var(--success); animation:slideToast 0.2s ease; font-size:0.9rem; }
+        @keyframes slideToast { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+        .selection-info { background:var(--primary); padding:0.2rem 0.6rem; border-radius:2rem; font-size:0.75rem; }
+        .title-input-edit { width:100%; background:rgba(0,0,0,0.6); border:1px solid var(--primary); border-radius:0.5rem; padding:0.3rem; color:white; font-size:0.9rem; }
+        @media (max-width:680px) { .main-content{padding:1rem;} .title-edit-btn{opacity:1;} }
+    </style>
+</head>
+<body>
+
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="text-center mb-4" style="text-align:center; margin-bottom:1rem;">
+                <i class="fas fa-play-circle logo-icon"></i>
+                <h2 style="margin-top: 8px;">VideoPocket</h2>
+                <p style="color:#94a3b8;">Secure & smart</p>
+            </div>
+            <div class="auth-tab-group">
+                <button class="auth-tab active" onclick="switchAuth('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuth('register')">Register</button>
+                <button class="auth-tab" onclick="switchAuth('recover')">Recover</button>
+            </div>
+            <form id="loginFormAuth" onsubmit="handleLogin(event)">
+                <input type="text" id="loginUser" placeholder="Username" class="input-modern" style="margin-bottom: 1rem;">
+                <input type="password" id="loginPass" placeholder="Password" class="input-modern" style="margin-bottom: 1.5rem;">
+                <button class="btn-glow w-100" style="width:100%"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
+            </form>
+            <form id="registerFormAuth" style="display:none;" onsubmit="handleRegister(event)">
+                <input type="text" id="regUser" placeholder="Username" class="input-modern" style="margin-bottom: 0.8rem;">
+                <input type="email" id="regEmail" placeholder="Email" class="input-modern" style="margin-bottom: 0.8rem;">
+                <select id="regQuestion" class="input-modern" style="margin-bottom: 0.8rem;"><option value="pet">First pet's name?</option><option value="city">Birth city?</option></select>
+                <input type="text" id="regAnswer" placeholder="Security answer" class="input-modern" style="margin-bottom: 0.8rem;">
+                <input type="password" id="regPass" placeholder="Password" class="input-modern" style="margin-bottom: 0.8rem;">
+                <input type="password" id="regConfirm" placeholder="Confirm" class="input-modern" style="margin-bottom: 1rem;">
+                <button class="btn-glow w-100"><i class="fas fa-user-plus"></i> Register</button>
+            </form>
+            <form id="recoverFormAuth" style="display:none;" onsubmit="handleRecovery(event)">
+                <input type="text" id="recUser" placeholder="Username" class="input-modern" style="margin-bottom: 1rem;">
+                <div id="recoveryFields" style="display:none;"><input type="text" id="recAnswer" placeholder="Security answer" class="input-modern" style="margin-bottom: 0.8rem;"><input type="password" id="newPass" placeholder="New password" class="input-modern" style="margin-bottom: 0.8rem;"><input type="password" id="newPassConfirm" placeholder="Confirm" class="input-modern" style="margin-bottom: 1rem;"></div>
+                <button class="btn-glow w-100" id="recoverBtnAction"><i class="fas fa-key"></i> Find account</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <div class="glass-header"><div class="logo-sm"><i class="fas fa-play-circle"></i> VideoPocket</div><div class="user-badge"><img id="avatarHeader" class="avatar" src=""><span id="usernameHeader"></span><button onclick="logout()" style="background:rgba(239,68,68,0.2); border:none; padding:6px 12px; border-radius:30px; color:#ef4444; cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button><button onclick="openSettingsModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fas fa-cog"></i></button></div></div>
+        <div class="main-content">
+            <div class="input-strip"><div class="input-group-flex"><div class="input-label">VIDEO URL</div><input type="text" id="videoUrl" class="quick-input" placeholder="https://youtube.com/watch?v=..." onkeydown="handleUrlKeydown(event)"><button class="clear-field-btn" onclick="clearField('videoUrl')"><i class="fas fa-times"></i></button></div><div class="input-group-flex"><div class="input-label">TITLE (optional)</div><input type="text" id="videoTitle" class="quick-input" placeholder="Auto-fetch if empty"><button class="clear-field-btn" onclick="clearField('videoTitle')"><i class="fas fa-times"></i></button></div><button class="btn-sm" onclick="addVideo()"><i class="fas fa-plus-circle"></i> Save</button></div>
+            
+            <div class="backup-section"><div style="display: flex; gap: 0.8rem;"><i class="fas fa-database"></i><span>Backup & Restore</span></div><div class="backup-buttons"><button onclick="exportAllData()" class="backup-btn"><i class="fas fa-download"></i> Export</button><label class="backup-btn" style="cursor:pointer;"><i class="fas fa-upload"></i> Import<input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="importAllData(this)"></label><button onclick="showResetConfirm()" class="backup-btn danger"><i class="fas fa-trash-alt"></i> Reset</button></div></div>
+            
+            <div class="import-section"><div class="import-header"><i class="fas fa-list-ul"></i><span>Import YouTube Playlist</span></div><div class="import-method-selector"><button class="method-btn active" onclick="switchImportMethod('auto')">Auto (Try API)</button><button class="method-btn" onclick="switchImportMethod('manual')">Manual (Paste URLs)</button></div><div id="autoImportPanel"><div class="import-input-group"><input type="text" id="playlistImportUrl" class="import-input" placeholder="https://www.youtube.com/playlist?list=..."><button onclick="importPlaylistAuto()" class="playlist-action-btn" style="background:var(--primary); color:white;">Import</button></div></div><div id="manualImportPanel" style="display:none;"><textarea id="manualUrlsInput" rows="5" placeholder="Paste YouTube video URLs (one per line)&#10;https://www.youtube.com/watch?v=abc123"></textarea><button onclick="importManualUrls()" class="playlist-action-btn" style="background:var(--success); color:white; width:100%;">Add These Videos</button></div><div id="importProgress" class="import-progress"><i class="fas fa-spinner fa-pulse"></i> <span id="importStatus">Fetching...</span></div></div>
+            
+            <div class="playlist-bar"><div class="playlist-selector"><i class="fas fa-folder-tree"></i><select id="playlistSelectMain" class="select-modern" onchange="switchPlaylist()"><option value="all">📂 All Videos</option><option value="unassigned">📁 Unassigned</option></select><button onclick="openCreatePlaylist()" class="playlist-action-btn" style="background:var(--success);"><i class="fas fa-plus"></i> New</button><button onclick="renameCurrentPlaylist()" id="renamePlaylistBtn" style="display:none;" class="playlist-action-btn"><i class="fas fa-edit"></i> Rename</button><button onclick="deleteCurrentPlaylist()" id="deletePlaylistBtn" style="display:none;" class="playlist-action-btn delete"><i class="fas fa-trash"></i> Delete</button><span id="selectionCount" class="selection-info" style="display:none;">0 selected</span></div><div class="bulk-bar" id="bulkActionsDiv" style="display:none;"><span id="selectedCountBadge" style="background:var(--primary); padding:0.2rem 0.8rem; border-radius:30px;">0</span><button class="icon-btn move" onclick="moveSelected()"><i class="fas fa-folder-open"></i> Move</button><button class="icon-btn del" onclick="deleteSelected()"><i class="fas fa-trash-alt"></i> Del</button><button class="icon-btn" onclick="clearSelections()"><i class="fas fa-times"></i></button></div></div>
+            
+            <div class="action-toolbar"><div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="globalSearch" class="search-input-mod" placeholder="Search..." oninput="filterAndRender()"></div><div class="filter-group"><button class="pill active" data-filter="all" onclick="setFilter('all',this)">All</button><button class="pill" data-filter="youtube" onclick="setFilter('youtube',this)">YouTube</button><button class="pill" data-filter="vimeo" onclick="setFilter('vimeo',this)">Vimeo</button><button class="pill" data-filter="other" onclick="setFilter('other',this)">Direct</button></div></div>
+            <div class="video-grid-modern" id="videoGrid"></div>
+            <div id="emptyMessage" style="display:none; text-align:center; padding:2rem;"><i class="fas fa-video-slash"></i> No videos match</div>
+        </div>
+    </div>
+    <div id="passwordModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-lock"></i> Encryption</h3><input type="password" id="backupPassword" class="input-modern" placeholder="Password"><input type="password" id="confirmBackupPassword" class="input-modern" placeholder="Confirm" style="display:none;"><div style="display:flex; gap:1rem; margin-top:1rem;"><button onclick="confirmPasswordAction()" class="btn-glow">Confirm</button><button onclick="closeModal('passwordModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
+    <div id="renamePlaylistModal" class="modal-glass"><div class="modal-card"><h3>Rename</h3><input type="text" id="renamePlaylistInput" class="input-modern"><div style="display:flex; gap:1rem; margin-top:1rem;"><button onclick="confirmRenamePlaylist()" class="btn-glow">Rename</button><button onclick="closeModal('renamePlaylistModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
+    <div id="createPlaylistModal" class="modal-glass"><div class="modal-card"><h3>New Playlist</h3><input type="text" id="newPlaylistName" class="input-modern"><div style="display:flex; gap:1rem; margin-top:1rem;"><button onclick="createPlaylistFinal()" class="btn-glow">Create</button><button onclick="closeModal('createPlaylistModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
+    <div id="moveModal" class="modal-glass"><div class="modal-card"><h3>Move to Playlist</h3><select id="moveSelectPlaylist" class="select-modern" style="width:100%; margin:1rem 0;"></select><button onclick="confirmMove()" class="btn-glow">Move</button><button onclick="closeModal('moveModal')" class="btn-glow btn-secondary">Cancel</button></div></div>
+    <div id="settingsModal" class="modal-glass"><div class="modal-card"><h3>Profile Settings</h3><div style="text-align:center; margin:1rem 0;"><img id="modalAvatar" style="width:100px; height:100px; border-radius:50%; object-fit:cover;"></div><input type="text" id="newUsername" class="input-modern" placeholder="New username"><input type="password" id="newPasswordSettings" class="input-modern" placeholder="New password (optional)"><button onclick="saveSettings()" class="btn-glow" style="margin-top:1rem;">Save Changes</button><button onclick="closeModal('settingsModal')" class="btn-glow btn-secondary" style="margin-top:0.5rem;">Cancel</button></div></div>
+    <div class="toast-fixed" id="toastRoot"></div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('videoPocketDB')) || { users: {}, currentUser: null };
+        let videos = [], playlists = {}, currentPlaylistId = 'all', currentFilterType = 'all', searchText = '', selectedVideoIds = new Set(), lastSelectedIndex = -1, currentVideoList = [];
+        let currentPasswordAction = null, pendingImportFile = null;
+        
+        async function sha256(m) { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(m)); return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join(''); }
+        
+        function toast(msg, type='success') { const t=document.getElementById('toastRoot'); const el=document.createElement('div'); el.className='toast-item'; el.style.borderLeftColor=type==='error'?'#ef4444':'#10b981'; el.innerHTML=`<i class="fas ${type==='error'?'fa-exclamation-triangle':'fa-check-circle'}"></i> ${msg}`; t.appendChild(el); setTimeout(()=>el.remove(),2800); }
+        
+        function saveFullDB() { localStorage.setItem('videoPocketDB', JSON.stringify(db)); }
+        
+        function loadUser() { if(!db.currentUser||!db.users[db.currentUser]) return false; let u=db.users[db.currentUser]; videos=u.videos||[]; playlists=u.playlists||{'favorites':{name:'Favorites'},'watch-later':{name:'Watch Later'}}; u.playlists=playlists; document.getElementById('usernameHeader').innerText='@'+db.currentUser; document.getElementById('avatarHeader').src=u.profilePic||`https://ui-avatars.com/api/?name=${db.currentUser}&background=6366f1&color=fff`; renderPlaylistSelectors(); renderGrid(); return true; }
+        
+        function renderPlaylistSelectors() { let sel=document.getElementById('playlistSelectMain'); while(sel.options.length>2) sel.remove(2); Object.keys(playlists).forEach(pid=>sel.add(new Option(playlists[pid].name,pid))); sel.value=currentPlaylistId; document.getElementById('renamePlaylistBtn').style.display=(currentPlaylistId!=='all'&&currentPlaylistId!=='unassigned')?'inline-flex':'none'; document.getElementById('deletePlaylistBtn').style.display=(currentPlaylistId!=='all'&&currentPlaylistId!=='unassigned')?'inline-flex':'none'; let moveSel=document.getElementById('moveSelectPlaylist'); moveSel.innerHTML='<option value="unassigned">📁 Unassigned</option>'; Object.keys(playlists).forEach(pid=>moveSel.add(new Option(playlists[pid].name,pid))); }
+        
+        function switchPlaylist() { currentPlaylistId=document.getElementById('playlistSelectMain').value; clearSelections(); renderGrid(); renderPlaylistSelectors(); }
+        
+        function setFilter(type,btn) { currentFilterType=type; document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderGrid(); }
+        
+        function filterAndRender() { searchText=document.getElementById('globalSearch').value.toLowerCase(); renderGrid(); }
+        
+        function getFilteredVideos() { let f=videos.slice(); if(currentPlaylistId!=='all') f=f.filter(v=>currentPlaylistId==='unassigned'?(!v.playlistId||v.playlistId==='unassigned'):v.playlistId===currentPlaylistId); if(currentFilterType!=='all') f=f.filter(v=>v.platform===currentFilterType); if(searchText) f=f.filter(v=>v.title.toLowerCase().includes(searchText)||v.url.toLowerCase().includes(searchText)); return f; }
+        
+        function getThumb(url) {
+            if(!url) return 'https://placehold.co/640x360/1e293b/94a3b8?text=No+URL';
+            try {
+                if(url.includes('youtube.com/watch')) {
+                    let vid = url.split('v=')[1]?.split('&')[0];
+                    if(vid) return `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+                }
+                if(url.includes('youtu.be/')) {
+                    let vid = url.split('youtu.be/')[1]?.split('?')[0];
+                    if(vid) return `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+                }
+                if(url.includes('vimeo.com')) return 'https://placehold.co/640x360/1e293b/94a3b8?text=Vimeo';
+            } catch(e) {}
+            return 'https://placehold.co/640x360/1e293b/94a3b8?text=Video';
+        }
+        
+        function getPlatform(url) { if(url.includes('youtube')||url.includes('youtu.be')) return 'youtube'; if(url.includes('vimeo')) return 'vimeo'; return 'other'; }
+        
+        async function fetchTitle(url) { try { if(url.includes('youtube')){ let res=await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`); if(res.ok){ let d=await res.json(); return d.title; } } } catch(e){} return `Video (${new URL(url).hostname})`; }
+        
+        async function addVideo() { let url=document.getElementById('videoUrl').value.trim(); if(!url) return toast('Enter URL','error'); if(videos.some(v=>v.url.toLowerCase()===url.toLowerCase())) return toast('Duplicate','error'); let title=document.getElementById('videoTitle').value.trim(); if(!title) title=await fetchTitle(url); let newVid={id:Date.now(),url,title:title||'Untitled',date:new Date().toLocaleDateString(),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),platform:getPlatform(url),thumbnail:getThumb(url),playlistId:(currentPlaylistId==='all'||currentPlaylistId==='unassigned')?'unassigned':currentPlaylistId}; videos.unshift(newVid); db.users[db.currentUser].videos=videos; saveFullDB(); document.getElementById('videoUrl').value=''; document.getElementById('videoTitle').value=''; renderGrid(); toast('Video added'); }
+        
+        function deleteVideoById(id) { if(confirm('Delete?')){ videos=videos.filter(v=>v.id!==id); db.users[db.currentUser].videos=videos; saveFullDB(); renderGrid(); toast('Removed'); } }
+        
+        // FIXED: Checkbox click - supports shift+click for range selection
+        function handleCheckboxClick(e, id, idx) {
+            e.stopPropagation();
+            
+            if (e.shiftKey && lastSelectedIndex !== -1) {
+                // Range selection with Shift key
+                let start = Math.min(lastSelectedIndex, idx);
+                let end = Math.max(lastSelectedIndex, idx);
+                for (let i = start; i <= end; i++) {
+                    if (currentVideoList[i]) {
+                        selectedVideoIds.add(currentVideoList[i].id);
+                    }
+                }
+            } else {
+                // Normal toggle selection
+                if (selectedVideoIds.has(id)) {
+                    selectedVideoIds.delete(id);
+                } else {
+                    selectedVideoIds.add(id);
+                }
+            }
+            lastSelectedIndex = idx;
+            renderGrid();
+        }
+        
+        // FIXED: Card click - supports shift+click for range selection, otherwise single select
+        function handleCardClick(e, id, idx) {
+            e.stopPropagation();
+            
+            if (e.shiftKey && lastSelectedIndex !== -1) {
+                // Range selection with Shift key
+                let start = Math.min(lastSelectedIndex, idx);
+                let end = Math.max(lastSelectedIndex, idx);
+                for (let i = start; i <= end; i++) {
+                    if (currentVideoList[i]) {
+                        selectedVideoIds.add(currentVideoList[i].id);
+                    }
+                }
+            } else {
+                // Single select mode - clear others, select only this one
+                if (!selectedVideoIds.has(id) || selectedVideoIds.size !== 1) {
+                    selectedVideoIds.clear();
+                    selectedVideoIds.add(id);
+                } else if (selectedVideoIds.size === 1 && selectedVideoIds.has(id)) {
+                    // If already selected and it's the only one, deselect it
+                    selectedVideoIds.clear();
+                }
+            }
+            lastSelectedIndex = idx;
+            renderGrid();
+        }
+        
+        function clearSelections() { selectedVideoIds.clear(); lastSelectedIndex=-1; renderGrid(); }
+        
+        function moveSelected() { if(selectedVideoIds.size===0) return toast('Select videos','error'); document.getElementById('moveModal').classList.add('active'); renderPlaylistSelectors(); }
+        
+        function confirmMove() { let target=document.getElementById('moveSelectPlaylist').value; for(let id of selectedVideoIds){ let v=videos.find(v=>v.id===id); if(v) v.playlistId=target; } db.users[db.currentUser].videos=videos; saveFullDB(); clearSelections(); renderGrid(); closeModal('moveModal'); toast('Moved'); }
+        
+        function deleteSelected() { if(selectedVideoIds.size===0) return; if(confirm(`Delete ${selectedVideoIds.size} videos?`)){ videos=videos.filter(v=>!selectedVideoIds.has(v.id)); db.users[db.currentUser].videos=videos; saveFullDB(); clearSelections(); renderGrid(); toast('Deleted'); } }
+        
+        function renderGrid() { 
+            let filtered=getFilteredVideos(); 
+            currentVideoList=filtered; 
+            let container=document.getElementById('videoGrid'); 
+            let emptyDiv=document.getElementById('emptyMessage'); 
+            if(filtered.length===0){ emptyDiv.style.display='block'; container.innerHTML=''; return; } 
+            emptyDiv.style.display='none'; 
+            container.innerHTML=''; 
+            filtered.forEach((v,idx)=>{ 
+                let isSel=selectedVideoIds.has(v.id); 
+                let card=document.createElement('div'); 
+                card.className=`video-card-mod ${isSel?'selected':''}`; 
+                card.innerHTML=`
+                    <div class="checkbox-select ${isSel?'checked':''}" onclick="handleCheckboxClick(event, ${v.id}, ${idx})">
+                        <i class="fas fa-check" style="font-size:12px;"></i>
+                    </div>
+                    <div class="card-media" onclick="window.open('${v.url.replace(/'/g,"\\'")}','_blank')">
+                        <img src="${v.thumbnail}" onerror="this.src='https://placehold.co/640x360/1e293b/94a3b8?text=Thumb+Error'">
+                        <div class="play-btn-overlay"><i class="fab fa-youtube fa-3x"></i></div>
+                    </div>
+                    <div class="card-info" onclick="handleCardClick(event, ${v.id}, ${idx})">
+                        <div class="title-row">
+                            <span class="title-text">${escapeHtml(v.title)}</span>
+                            <button class="title-edit-btn" onclick="event.stopPropagation(); startRenameTitle(${v.id},'${escapeHtml(v.title).replace(/'/g,"\\'")}',this.parentElement)"><i class="fas fa-pencil-alt"></i></button>
+                        </div>
+                        <div class="playlist-label" onclick="event.stopPropagation(); document.getElementById('playlistSelectMain').value='${v.playlistId||'unassigned'}';switchPlaylist();">
+                            <i class="fas fa-folder"></i> ${playlists[v.playlistId]?.name||'Unassigned'}
+                        </div>
+                        <div class="meta-row">
+                            <span><i class="far fa-calendar"></i> ${v.date}</span>
+                            <span><i class="fab fa-${v.platform==='youtube'?'youtube':(v.platform==='vimeo'?'vimeo':'globe')}"></i> ${v.platform}</span>
+                        </div>
+                        <div class="card-actions-row">
+                            <button class="icon-btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${v.url.replace(/'/g,"\\'")}'); toast('Copied');"><i class="fas fa-link"></i></button>
+                            <button class="icon-btn del" onclick="event.stopPropagation(); deleteVideoById(${v.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `; 
+                container.appendChild(card); 
+            }); 
+            document.getElementById('bulkActionsDiv').style.display=selectedVideoIds.size>0?'flex':'none'; 
+            document.getElementById('selectedCountBadge').innerText=selectedVideoIds.size; 
+            document.getElementById('selectionCount').style.display=selectedVideoIds.size>0?'inline-flex':'none'; 
+            if(document.getElementById('selectionCount')) document.getElementById('selectionCount').textContent=`${selectedVideoIds.size} selected`; 
+        }
+        
+        function startRenameTitle(vidId,currTitle,container) { 
+            let inp=document.createElement('input'); 
+            inp.value=currTitle; 
+            inp.className='title-input-edit'; 
+            inp.onkeydown=e=>{if(e.key==='Enter'){ let newTitle=inp.value.trim(); if(newTitle){ let v=videos.find(v=>v.id===vidId); if(v) v.title=newTitle; db.users[db.currentUser].videos=videos; saveFullDB(); renderGrid(); toast('Title updated');} else toast('Cannot be empty','error');}}; 
+            inp.onblur=()=>renderGrid(); 
+            container.innerHTML=''; 
+            container.appendChild(inp); 
+            inp.focus(); 
+            inp.select(); 
+        }
+        
+        function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g, m=> m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+        
+        function switchImportMethod(m){ document.getElementById('autoImportPanel').style.display=m==='auto'?'block':'none'; document.getElementById('manualImportPanel').style.display=m==='auto'?'none':'block'; document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active')); if(m==='auto') document.querySelector('.method-btn:first-child').classList.add('active'); else document.querySelector('.method-btn:last-child').classList.add('active'); }
+        
+        async function importManualUrls(){ let txt=document.getElementById('manualUrlsInput').value; let urls=txt.split(/\r?\n/).filter(l=>l.trim()&&(l.includes('youtube.com')||l.includes('youtu.be'))); if(urls.length===0) return toast('No valid URLs','error'); let added=0,dup=0; for(let url of urls){ if(videos.some(v=>v.url===url.trim())){ dup++; continue; } let title=await fetchTitle(url); videos.unshift({id:Date.now()+Math.random(),url:url.trim(),title:title||'Imported',date:new Date().toLocaleDateString(),time:new Date().toLocaleTimeString(),platform:'youtube',thumbnail:getThumb(url),playlistId:(currentPlaylistId==='all'||currentPlaylistId==='unassigned')?'unassigned':currentPlaylistId}); added++; } db.users[db.currentUser].videos=videos; saveFullDB(); renderGrid(); toast(`✅ Added ${added} videos${dup>0?` (${dup} duplicates skipped)`:''}`); document.getElementById('manualUrlsInput').value=''; }
+        
+        async function importPlaylistAuto(){ let url=document.getElementById('playlistImportUrl').value; let match=url.match(/[&?]list=([^&]+)/); if(!match) return toast('Invalid playlist URL','error'); let pid=match[1]; let prog=document.getElementById('importProgress'); prog.style.display='block'; try{ let res=await fetch(`https://pipedapi.kavin.rocks/playlists/${pid}`); if(res.ok){ let data=await res.json(); let items=data.relatedStreams||[]; let added=0; for(let i=0;i<Math.min(items.length,50);i++){ let v=items[i]; let vUrl=`https://www.youtube.com/watch?v=${v.url.split('v=')[1]?.split('&')[0]||v.url.split('/').pop()}`; if(!videos.some(ex=>ex.url===vUrl)){ videos.unshift({id:Date.now()+i,url:vUrl,title:v.title||'Video',date:new Date().toLocaleDateString(),time:new Date().toLocaleTimeString(),platform:'youtube',thumbnail:`https://img.youtube.com/vi/${v.url.split('v=')[1]?.split('&')[0]||v.url.split('/').pop()}/hqdefault.jpg`,playlistId:(currentPlaylistId==='all'||currentPlaylistId==='unassigned')?'unassigned':currentPlaylistId}); added++; } } if(added>0){ db.users[db.currentUser].videos=videos; saveFullDB(); renderGrid(); toast(`Imported ${added} videos`); } else toast('All videos already exist'); } else throw new Error(); } catch(e){ toast('Auto import failed, try Manual method','error'); } finally{ prog.style.display='none'; } }
+        
+        function openCreatePlaylist(){ document.getElementById('createPlaylistModal').classList.add('active'); }
+        
+        function createPlaylistFinal(){ let name=document.getElementById('newPlaylistName').value.trim(); if(!name) return toast('Name required','error'); let id='pl_'+Date.now(); playlists[id]={name}; db.users[db.currentUser].playlists=playlists; saveFullDB(); renderPlaylistSelectors(); closeModal('createPlaylistModal'); toast(`Playlist "${name}" created`); }
+        
+        function renameCurrentPlaylist(){ if(currentPlaylistId==='all'||currentPlaylistId==='unassigned') return; document.getElementById('renamePlaylistInput').value=playlists[currentPlaylistId]?.name||''; document.getElementById('renamePlaylistModal').classList.add('active'); }
+        
+        function confirmRenamePlaylist(){ let newName=document.getElementById('renamePlaylistInput').value.trim(); if(!newName) return; playlists[currentPlaylistId].name=newName; db.users[db.currentUser].playlists=playlists; saveFullDB(); renderPlaylistSelectors(); closeModal('renamePlaylistModal'); toast('Renamed'); }
+        
+        function deleteCurrentPlaylist(){ if(currentPlaylistId==='all'||currentPlaylistId==='unassigned') return; if(confirm(`Delete "${playlists[currentPlaylistId]?.name}"?`)){ videos.forEach(v=>{if(v.playlistId===currentPlaylistId) v.playlistId='unassigned';}); delete playlists[currentPlaylistId]; db.users[db.currentUser].playlists=playlists; db.users[db.currentUser].videos=videos; saveFullDB(); currentPlaylistId='all'; renderPlaylistSelectors(); renderGrid(); toast('Deleted'); } }
+        
+        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+        
+        async function encryptData(data,pwd){ let salt=crypto.getRandomValues(new Uint8Array(16)); let iv=crypto.getRandomValues(new Uint8Array(12)); let enc=new TextEncoder(); let key=await crypto.subtle.importKey('raw',enc.encode(pwd),'PBKDF2',false,['deriveKey']); let derived=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,{name:'AES-GCM',length:256},false,['encrypt']); let encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},derived,enc.encode(JSON.stringify(data))); return JSON.stringify({version:'2.0',salt:Array.from(salt),iv:Array.from(iv),data:Array.from(new Uint8Array(encrypted))}); }
+        
+        async function decryptData(enc,pwd){ let obj=JSON.parse(enc); let salt=new Uint8Array(obj.salt); let iv=new Uint8Array(obj.iv); let key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),'PBKDF2',false,['deriveKey']); let derived=await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:100000,hash:'SHA-256'},key,{name:'AES-GCM',length:256},false,['decrypt']); let dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},derived,new Uint8Array(obj.data)); return JSON.parse(new TextDecoder().decode(dec)); }
+        
+        function exportAllData(){ currentPasswordAction='export'; document.getElementById('confirmBackupPassword').style.display='block'; document.getElementById('backupPassword').value=''; document.getElementById('passwordModal').classList.add('active'); }
+        
+        function importAllData(input){ if(input.files[0]){ pendingImportFile=input.files[0]; currentPasswordAction='import'; document.getElementById('confirmBackupPassword').style.display='none'; document.getElementById('backupPassword').value=''; document.getElementById('passwordModal').classList.add('active'); } }
+        
+        async function confirmPasswordAction(){ let pwd=document.getElementById('backupPassword').value; if(currentPasswordAction==='export'){ let conf=document.getElementById('confirmBackupPassword').value; if(pwd!==conf) return toast('Passwords mismatch','error'); let userData=db.users[db.currentUser]; let exportObj={version:'2.0',username:db.currentUser,data:{videos:userData.videos,playlists:userData.playlists}}; let enc=await encryptData(exportObj,pwd); let blob=new Blob([enc],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`videopocket_${db.currentUser}.json`; a.click(); toast('Backup exported'); } else if(currentPasswordAction==='import'){ let text=await pendingImportFile.text(); let dec=await decryptData(text,pwd); if(dec.username&&dec.data){ if(!db.users[dec.username]) db.users[dec.username]={videos:[],playlists:{}}; db.users[dec.username].videos=dec.data.videos; db.users[dec.username].playlists=dec.data.playlists; saveFullDB(); if(db.currentUser===dec.username) loadUser(); toast('Restored'); } } closeModal('passwordModal'); }
+        
+        function showResetConfirm(){ if(confirm('Delete ALL data?')&&prompt('Type "DELETE"')==='DELETE'){ db.users[db.currentUser]={...db.users[db.currentUser],videos:[],playlists:{'favorites':{name:'Favorites'},'watch-later':{name:'Watch Later'}}}; saveFullDB(); loadUser(); toast('Reset'); } }
+        
+        function openSettingsModal(){ document.getElementById('settingsModal').classList.add('active'); document.getElementById('modalAvatar').src=db.users[db.currentUser].profilePic||`https://ui-avatars.com/api/?name=${db.currentUser}&background=6366f1&color=fff`; document.getElementById('newUsername').value=db.currentUser; document.getElementById('newPasswordSettings').value=''; }
+        
+        async function saveSettings(){ let newName=document.getElementById('newUsername').value.trim(); let newPwd=document.getElementById('newPasswordSettings').value; if(newName&&newName!==db.currentUser){ if(db.users[newName]) return toast('Username taken','error'); let data=db.users[db.currentUser]; data.hashedUsername=await sha256(newName); db.users[newName]=data; delete db.users[db.currentUser]; db.currentUser=newName; } if(newPwd) db.users[db.currentUser].hashedPassword=await sha256(newPwd); saveFullDB(); loadUser(); closeModal('settingsModal'); toast('Saved'); }
+        
+        async function handleLogin(e){ e.preventDefault(); let u=document.getElementById('loginUser').value.trim(); let p=document.getElementById('loginPass').value; if(!db.users[u]) return toast('User not found','error'); let user=db.users[u]; if(user.hashedPassword!==await sha256(p)||user.hashedUsername!==await sha256(u)) return toast('Wrong credentials','error'); db.currentUser=u; saveFullDB(); document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').classList.add('visible'); loadUser(); }
+        
+        async function handleRegister(e){ e.preventDefault(); let u=document.getElementById('regUser').value.trim(); let email=document.getElementById('regEmail').value; let q=document.getElementById('regQuestion').value; let ans=document.getElementById('regAnswer').value.trim().toLowerCase(); let pwd=document.getElementById('regPass').value; let conf=document.getElementById('regConfirm').value; if(pwd!==conf) return toast('Passwords mismatch','error'); if(db.users[u]) return toast('Exists','error'); db.users[u]={hashedUsername:await sha256(u),hashedPassword:await sha256(pwd),email,securityQuestion:q,hashedAnswer:await sha256(ans),profilePic:`https://ui-avatars.com/api/?name=${u}&background=6366f1&color=fff`,videos:[],playlists:{'favorites':{name:'Favorites'},'watch-later':{name:'Watch Later'}}}; saveFullDB(); toast('Registered! Login'); switchAuth('login'); }
+        
+        let recoveryStep=0,recoveryTarget=null;
+        async function handleRecovery(e){ e.preventDefault(); let user=document.getElementById('recUser').value.trim(); if(recoveryStep===0){ if(!db.users[user]) return toast('User not found','error'); recoveryTarget=db.users[user]; document.getElementById('recoveryFields').style.display='block'; document.getElementById('recoverBtnAction').innerHTML='Verify Answer'; recoveryStep=1; } else if(recoveryStep===1){ let ans=document.getElementById('recAnswer').value.trim().toLowerCase(); if(recoveryTarget.hashedAnswer!==await sha256(ans)) return toast('Wrong answer','error'); document.getElementById('newPass').style.display='block'; document.getElementById('newPassConfirm').style.display='block'; document.getElementById('recoverBtnAction').innerHTML='Reset Password'; recoveryStep=2; } else { let np=document.getElementById('newPass').value; let npc=document.getElementById('newPassConfirm').value; if(np!==npc) return toast('Mismatch','error'); db.users[user].hashedPassword=await sha256(np); saveFullDB(); toast('Password reset!'); switchAuth('login'); } }
+        
+        function switchAuth(m){ document.querySelectorAll('#loginFormAuth,#registerFormAuth,#recoverFormAuth').forEach(f=>f.style.display='none'); document.getElementById(`${m}FormAuth`).style.display='block'; if(m!=='recover'){ recoveryStep=0; document.getElementById('recoveryFields').style.display='none'; } }
+        
+        function logout(){ db.currentUser=null; saveFullDB(); location.reload(); }
+        
+        function handleUrlKeydown(e){ if(e.key==='Enter') addVideo(); else if(e.key==='Escape') clearField('videoUrl'); }
+        
+        function clearField(id){ document.getElementById(id).value=''; toast('Cleared'); }
+        
+        document.addEventListener('DOMContentLoaded',()=>{ if(db.currentUser&&db.users[db.currentUser]){ document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').classList.add('visible'); loadUser(); } else document.getElementById('appContainer').classList.remove('visible'); });
+    </script>
+</body>
+</html>
