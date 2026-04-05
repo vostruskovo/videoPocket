@@ -133,13 +133,18 @@
             border: 1px solid var(--border-dim);
             transition: all 0.25s ease;
             position: relative;
+            cursor: pointer;
+        }
+        .video-card-mod.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary);
         }
         .video-card-mod:hover { transform: translateY(-4px); border-color: var(--primary); }
         .card-media { position: relative; cursor: pointer; height: 170px; background: #000; }
         .card-media img { width: 100%; height: 100%; object-fit: cover; }
         .play-btn-overlay { position: absolute; inset:0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition:0.2s; }
         .card-media:hover .play-btn-overlay { opacity:1; }
-        .card-info { padding: 1rem; }
+        .card-info { padding: 1rem; cursor: pointer; }
         .title-row { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.5rem; }
         .meta-row { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-secondary); margin: 0.5rem 0; flex-wrap: wrap; gap:6px; }
         .tags-container { display: flex; flex-wrap: wrap; gap: 5px; margin: 0.4rem 0; }
@@ -180,7 +185,6 @@
             border-radius: 12px;
         }
         .note-btn-sm:hover { background: rgba(255,255,255,0.1); }
-        .note-btn-sm.fav-active { color: #f59e0b; }
         .card-actions-row { display: flex; justify-content: space-between; margin-top: 0.6rem; border-top: 1px solid var(--border-dim); padding-top: 0.6rem; }
         .icon-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1rem; padding: 0.3rem 0.5rem; border-radius: 0.5rem; }
         .icon-btn:hover { background: rgba(255,255,255,0.05); }
@@ -222,9 +226,41 @@
         .tag-filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
         .tag-filter { background: rgba(255,255,255,0.05); border: 1px solid var(--border-dim); border-radius: 1.5rem; padding: 0.3rem 0.8rem; font-size: 0.7rem; cursor: pointer; }
         .tag-filter.active { background: var(--primary); border-color: var(--primary); }
-        .tag-filter i { margin-right: 4px; }
         
-        /* Avatar Editor Styles from 2.0.html */
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-dim);
+            border-radius: 1rem;
+            padding: 0.5rem;
+            z-index: 1000;
+            min-width: 200px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .context-menu-item {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            border-radius: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.85rem;
+            transition: 0.1s;
+        }
+        .context-menu-item:hover {
+            background: var(--primary);
+        }
+        .context-menu-item.danger:hover {
+            background: var(--danger);
+        }
+        .context-menu-divider {
+            height: 1px;
+            background: var(--border-dim);
+            margin: 0.3rem 0;
+        }
+        
+        /* Avatar Editor Styles */
         .avatar-editor-container {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 1rem;
@@ -259,69 +295,6 @@
             object-fit: cover;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        .editor-canvas-wrapper {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        .editor-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
-        .control-group label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            min-width: 70px;
-        }
-        .control-group input[type="range"] {
-            flex: 1;
-            background: var(--border-dim);
-            height: 4px;
-            border-radius: 5px;
-            -webkit-appearance: none;
-        }
-        .control-group input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-        }
-        .control-value {
-            font-size: 0.75rem;
-            color: var(--primary);
-            min-width: 45px;
-            text-align: right;
-        }
-        .icon-button-group {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .icon-btn-sm {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--border-dim);
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-        }
-        .icon-btn-sm:hover {
-            background: var(--primary);
-            transform: scale(1.05);
-        }
         .upload-btn {
             background: var(--primary);
             color: white;
@@ -338,6 +311,15 @@
         .upload-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
+        }
+        .selection-info {
+            background: var(--primary);
+            border-radius: 2rem;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
         
         @media (max-width: 680px) { .main-content { padding:1rem; } .video-grid-modern { grid-template-columns:1fr; } }
@@ -395,6 +377,10 @@
             <div class="user-badge">
                 <img id="avatarHeader" class="avatar" src="" alt="avatar" onclick="openSettingsModal()">
                 <span id="usernameHeader"></span>
+                <div id="selectionInfo" class="selection-info" style="display:none;">
+                    <span id="selectedCountSpan">0</span> selected
+                    <button onclick="openBulkActions()" style="background:white;color:var(--primary);border:none;border-radius:1rem;padding:0.2rem 0.6rem;cursor:pointer;"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
                 <button onclick="logout()" style="background:rgba(239,68,68,0.2); border:none; padding:6px 12px; border-radius:30px; color:#ef4444; cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button>
                 <button onclick="openSettingsModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.2rem; cursor:pointer;"><i class="fas fa-cog"></i></button>
             </div>
@@ -412,7 +398,6 @@
                 <button class="btn-sm" onclick="addVideo()"><i class="fas fa-plus-circle"></i> Save</button>
             </div>
 
-            <!-- Export/Import Bar -->
             <div class="share-section">
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <button onclick="exportData()" class="playlist-action-btn" style="background: var(--success); color:white;"><i class="fas fa-download"></i> Export All Data</button>
@@ -436,7 +421,6 @@
                 </div>
             </div>
 
-            <!-- Tag Filter Bar -->
             <div class="tag-filter-bar" id="tagFilterBar"></div>
 
             <div class="action-toolbar">
@@ -462,7 +446,6 @@
     <div id="createPlaylistModal" class="modal-glass"><div class="modal-card"><h3>Create Playlist</h3><input type="text" id="newPlaylistName" class="input-modern" style="margin:1rem 0;"><div style="display:flex; gap:1rem;"><button onclick="createPlaylistFinal()" class="btn-glow">Create</button><button onclick="closeModal('createPlaylistModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
     <div id="videoPlayerModal" class="modal-glass"><div class="modal-card" style="max-width:900px;padding:0;"><div style="padding:1rem; display:flex; justify-content:space-between;"><h4 id="videoPlayerTitle"></h4><button onclick="closeVideoPlayer()">✕</button></div><div id="videoPlayerContainer" style="position:relative; padding-bottom:56.25%;"></div></div></div>
     
-    <!-- UPDATED SETTINGS MODAL with Avatar Editor from 2.0.html -->
     <div id="settingsModal" class="modal-glass">
         <div class="modal-card">
             <h3><i class="fas fa-user-edit"></i> Profile Settings</h3>
@@ -518,8 +501,10 @@
     </div>
     
     <div id="moveModal" class="modal-glass"><div class="modal-card"><h3>Move to Playlist</h3><select id="moveSelectPlaylist" class="select-modern" style="width:100%; margin:1rem 0;"></select><button onclick="confirmMove()" class="btn-glow">Move</button><button onclick="closeModal('moveModal')" class="btn-glow btn-secondary">Cancel</button></div></div>
+    <div id="bulkActionsModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-tasks"></i> Actions for Selected Videos</h3><div id="bulkActionsList" style="display:flex; flex-direction:column; gap:0.8rem; margin:1rem 0;"></div><button onclick="closeModal('bulkActionsModal')" class="btn-glow btn-secondary">Cancel</button></div></div>
     <div id="noteModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-sticky-note"></i> Video Notes</h3><div id="noteVideoTitle" style="margin:0.5rem 0; color:var(--primary-glow);"></div><textarea id="noteContent" class="note-textarea" rows="4" placeholder="Write fascinating points..."></textarea><div style="display:flex; gap:1rem; align-items:center;"><button onclick="toggleFavoriteNote()" id="favNoteBtn" class="playlist-action-btn"><i class="fas fa-star"></i> Favorite</button><button onclick="saveNote()" class="btn-glow" style="flex:1;">Save</button><button onclick="closeModal('noteModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
     <div id="tagModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-tags"></i> Manage Tags</h3><div id="tagModalVideoTitle" style="margin:0.5rem 0;"></div><div id="tagModalList" style="display:flex; flex-wrap:wrap; gap:8px; margin:1rem 0;"></div><div style="display:flex; gap:0.5rem;"><input type="text" id="newTagInput" class="input-modern" placeholder="New tag name" style="flex:1;"><button onclick="addNewTag()" class="btn-glow" style="padding:0.5rem 1rem;"><i class="fas fa-plus"></i> Add</button></div><div style="margin-top:1rem;"><button onclick="closeModal('tagModal')" class="btn-glow btn-secondary">Close</button></div></div></div>
+    <div id="createPlaylistAndMoveModal" class="modal-glass"><div class="modal-card"><h3><i class="fas fa-plus-circle"></i> Create Playlist & Move</h3><input type="text" id="newPlaylistMoveName" placeholder="New playlist name" class="input-modern" style="margin:1rem 0;"><div style="display:flex; gap:1rem;"><button onclick="createPlaylistAndMove()" class="btn-glow">Create & Move</button><button onclick="closeModal('createPlaylistAndMoveModal')" class="btn-glow btn-secondary">Cancel</button></div></div></div>
     <div class="toast-fixed" id="toastRoot"></div>
 
     <script>
@@ -528,8 +513,10 @@
         let videos = [], playlists = {};
         let currentPlaylistId = 'all', currentFilterType = 'all', searchText = '', currentSort = 'newest', selectedTagFilter = null;
         let currentEditingVideoId = null, currentTagVideoId = null;
+        let selectedVideoIds = new Set();
+        let lastClickedIndex = null;
+        let contextMenuVideoId = null;
         
-        // Avatar Editor Variables
         let sharedImageData = null;
         let sharedImage = null;
         let currentEditorMode = 'crop';
@@ -540,7 +527,184 @@
         function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // ========== AVATAR EDITOR FUNCTIONS (from 2.0.html) ==========
+        // ESC closes modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeModals = document.querySelectorAll('.modal-glass.active');
+                if (activeModals.length > 0) {
+                    activeModals.forEach(modal => { closeModal(modal.id); });
+                }
+            }
+        });
+
+        // ========== CONTEXT MENU FOR VIDEO OPTIONS ==========
+        function showContextMenu(e, videoId) {
+            e.preventDefault();
+            e.stopPropagation();
+            contextMenuVideoId = videoId;
+            
+            // Remove existing context menu
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) existingMenu.remove();
+            
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            
+            menu.innerHTML = `
+                <div class="context-menu-item" onclick="moveSingleVideo(${videoId})">
+                    <i class="fas fa-folder-open"></i> Move to Playlist
+                </div>
+                <div class="context-menu-item" onclick="openCreatePlaylistAndMoveSingle(${videoId})">
+                    <i class="fas fa-plus-circle"></i> Create New Playlist & Move
+                </div>
+                <div class="context-menu-divider"></div>
+                <div class="context-menu-item danger" onclick="deleteSingleVideo(${videoId})">
+                    <i class="fas fa-trash"></i> Delete Video
+                </div>
+            `;
+            
+            document.body.appendChild(menu);
+            
+            // Close menu on click outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 10);
+        }
+        
+        function moveSingleVideo(videoId) {
+            selectedVideoIds.clear();
+            selectedVideoIds.add(videoId);
+            updateSelectionUI();
+            openMoveModal();
+            closeContextMenu();
+        }
+        
+        function openCreatePlaylistAndMoveSingle(videoId) {
+            selectedVideoIds.clear();
+            selectedVideoIds.add(videoId);
+            updateSelectionUI();
+            document.getElementById('createPlaylistAndMoveModal').classList.add('active');
+            closeContextMenu();
+        }
+        
+        function deleteSingleVideo(videoId) {
+            if (confirm('Delete this video?')) {
+                videos = videos.filter(v => v.id !== videoId);
+                if (selectedVideoIds.has(videoId)) selectedVideoIds.delete(videoId);
+                currentUserObj.videos = videos;
+                saveFullDB();
+                renderTagFilterBar();
+                renderGrid();
+                toast('Video removed');
+            }
+            closeContextMenu();
+        }
+        
+        function closeContextMenu() {
+            const menu = document.querySelector('.context-menu');
+            if (menu) menu.remove();
+        }
+
+        // ========== SELECTION LOGIC ==========
+        function handleVideoSelection(videoId, event, index) {
+            if (event.shiftKey && lastClickedIndex !== null) {
+                const start = Math.min(lastClickedIndex, index);
+                const end = Math.max(lastClickedIndex, index);
+                const filtered = getFilteredVideos();
+                for (let i = start; i <= end; i++) {
+                    selectedVideoIds.add(filtered[i].id);
+                }
+            } else if (event.ctrlKey || event.metaKey) {
+                if (selectedVideoIds.has(videoId)) {
+                    selectedVideoIds.delete(videoId);
+                } else {
+                    selectedVideoIds.add(videoId);
+                }
+                lastClickedIndex = index;
+            } else {
+                if (selectedVideoIds.has(videoId) && selectedVideoIds.size === 1) {
+                    selectedVideoIds.clear();
+                } else {
+                    selectedVideoIds.clear();
+                    selectedVideoIds.add(videoId);
+                }
+                lastClickedIndex = index;
+            }
+            updateSelectionUI();
+            renderGrid();
+        }
+
+        function updateSelectionUI() {
+            const selectionInfo = document.getElementById('selectionInfo');
+            const selectedCountSpan = document.getElementById('selectedCountSpan');
+            if (selectedVideoIds.size > 0) {
+                selectionInfo.style.display = 'flex';
+                selectedCountSpan.textContent = selectedVideoIds.size;
+            } else {
+                selectionInfo.style.display = 'none';
+            }
+        }
+
+        function openBulkActions() {
+            const container = document.getElementById('bulkActionsList');
+            container.innerHTML = `
+                <button onclick="closeModal('bulkActionsModal'); openMoveModal();" class="playlist-action-btn" style="background:var(--info); color:white; padding:0.8rem;"><i class="fas fa-folder-open"></i> Move to Playlist (${selectedVideoIds.size} videos)</button>
+                <button onclick="closeModal('bulkActionsModal'); openCreatePlaylistAndMoveBulk();" class="playlist-action-btn" style="background:var(--success); color:white; padding:0.8rem;"><i class="fas fa-plus-circle"></i> Create New Playlist & Move</button>
+                <button onclick="if(confirm('Delete ${selectedVideoIds.size} videos?')){ deleteSelected(); closeModal('bulkActionsModal'); }" class="playlist-action-btn" style="background:var(--danger); color:white; padding:0.8rem;"><i class="fas fa-trash"></i> Delete Selected</button>
+                <button onclick="selectedVideoIds.clear(); updateSelectionUI(); renderGrid(); closeModal('bulkActionsModal');" class="playlist-action-btn" style="padding:0.8rem;"><i class="fas fa-times"></i> Clear Selection</button>
+            `;
+            document.getElementById('bulkActionsModal').classList.add('active');
+        }
+
+        function openCreatePlaylistAndMoveBulk() {
+            document.getElementById('createPlaylistAndMoveModal').classList.add('active');
+        }
+
+        function createPlaylistAndMove() {
+            const name = document.getElementById('newPlaylistMoveName').value.trim();
+            if (!name) return toast('Playlist name required', 'error');
+            const id = 'pl_' + Date.now();
+            playlists[id] = { name };
+            db.users[db.currentUser].playlists = playlists;
+            saveFullDB();
+            renderPlaylistSelectors();
+            
+            const selectedIdsArray = Array.from(selectedVideoIds);
+            for (let vidId of selectedIdsArray) {
+                const videoIndex = videos.findIndex(v => v.id === vidId);
+                if (videoIndex !== -1) {
+                    videos[videoIndex].playlistId = id;
+                }
+            }
+            db.users[db.currentUser].videos = videos;
+            saveFullDB();
+            selectedVideoIds.clear();
+            updateSelectionUI();
+            renderGrid();
+            closeModal('createPlaylistAndMoveModal');
+            document.getElementById('newPlaylistMoveName').value = '';
+            toast(`Created playlist "${name}" and moved ${selectedIdsArray.length} videos`);
+        }
+
+        function deleteSelected() {
+            if (selectedVideoIds.size === 0) return;
+            videos = videos.filter(v => !selectedVideoIds.has(v.id));
+            db.users[db.currentUser].videos = videos;
+            saveFullDB();
+            selectedVideoIds.clear();
+            updateSelectionUI();
+            renderGrid();
+            toast('Deleted successfully');
+        }
+
+        // ========== AVATAR EDITOR FUNCTIONS ==========
         function switchEditorMode(mode) {
             currentEditorMode = mode;
             document.querySelectorAll('.editor-tab').forEach(tab => tab.classList.remove('active'));
@@ -587,48 +751,21 @@
         function cancelCrop() { document.getElementById('simpleCropControls').style.display = 'none'; document.getElementById('cropCanvas').style.display = 'none'; }
         function cancelAdvancedEdit() { document.getElementById('advancedControls').style.display = 'none'; }
 
-
-
-function clear(id, event) {
-    if (event.key === 'Escape') {
-        document.getElementById(id).value = "";
-    }
-}
-
-document.getElementById("videoUrl").addEventListener('keydown', function(event) {
-    clear('videoUrl', event);
-});
-
-document.getElementById("globalSearch").addEventListener('keydown', function(event) {
-    clear('globalSearch', event);
-});
-
-
-
-
-
-
-
         // ========== AUTO-TAGGING ==========
         function autoTagVideo(title, url) {
             const tags = [];
             const lowerTitle = title.toLowerCase();
             const lowerUrl = url.toLowerCase();
-            
-            if (lowerTitle.includes('tutorial') || lowerTitle.includes('how to') || lowerTitle.includes('guide')) tags.push('tutorial');
-            if (lowerTitle.includes('review') || lowerTitle.includes('unboxing')) tags.push('review');
-            if (lowerTitle.includes('music') || lowerTitle.includes('song') || lowerTitle.includes('audio')) tags.push('music');
-            if (lowerTitle.includes('gaming') || lowerTitle.includes('gameplay') || lowerTitle.includes('playthrough')) tags.push('gaming');
-            if (lowerTitle.includes('coding') || lowerTitle.includes('programming') || lowerTitle.includes('developer')) tags.push('coding');
-            if (lowerTitle.includes('podcast') || lowerTitle.includes('interview')) tags.push('podcast');
-            if (lowerTitle.includes('trailer') || lowerTitle.includes('teaser')) tags.push('trailer');
+            if (lowerTitle.includes('tutorial') || lowerTitle.includes('how to')) tags.push('tutorial');
+            if (lowerTitle.includes('review')) tags.push('review');
+            if (lowerTitle.includes('music')) tags.push('music');
+            if (lowerTitle.includes('gaming')) tags.push('gaming');
+            if (lowerTitle.includes('coding')) tags.push('coding');
             if (lowerUrl.includes('youtube.com')) tags.push('youtube');
             if (lowerUrl.includes('vimeo.com')) tags.push('vimeo');
-            
             return [...new Set(tags)];
         }
 
-        // ========== SORT FUNCTION ==========
         function setSort(sort, btn) {
             currentSort = sort;
             document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -638,21 +775,13 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
 
         function sortVideos(videoArray) {
             const sorted = [...videoArray];
-            if (currentSort === 'newest') {
-                sorted.sort((a, b) => b.id - a.id);
-            } else {
-                sorted.sort((a, b) => a.id - b.id);
-            }
+            if (currentSort === 'newest') sorted.sort((a, b) => b.id - a.id);
+            else sorted.sort((a, b) => a.id - b.id);
             return sorted;
         }
 
-        // ========== EXPORT/IMPORT ==========
         function exportData() {
-            const exportObj = {
-                videos: videos,
-                playlists: playlists,
-                exportDate: new Date().toISOString()
-            };
+            const exportObj = { videos: videos, playlists: playlists, exportDate: new Date().toISOString() };
             const dataStr = JSON.stringify(exportObj, null, 2);
             const blob = new Blob([dataStr], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
@@ -677,9 +806,7 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
                         saveFullDB();
                         renderGrid();
                         toast(`Imported ${videos.length} videos!`);
-                    } else {
-                        toast('Invalid backup file', 'error');
-                    }
+                    } else toast('Invalid backup file', 'error');
                 } catch(err) { toast('Error parsing file', 'error'); }
                 input.value = '';
             };
@@ -730,7 +857,7 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
         function addNewTag() {
             const newTag = document.getElementById('newTagInput').value.trim().toLowerCase();
             if (!newTag) return toast('Enter a tag name', 'error');
-            if (newTag.length > 20) return toast('Tag too long (max 20 chars)', 'error');
+            if (newTag.length > 20) return toast('Tag too long', 'error');
             const video = videos.find(v => v.id === currentTagVideoId);
             if (video) {
                 if (!video.tags) video.tags = [];
@@ -786,7 +913,6 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
             document.getElementById('noteContent').value = video.note || '';
             const favBtn = document.getElementById('favNoteBtn');
             favBtn.innerHTML = currentNoteFavorite ? '<i class="fas fa-star" style="color:#f59e0b;"></i> Unfavorite' : '<i class="far fa-star"></i> Favorite';
-            favBtn.style.background = currentNoteFavorite ? 'rgba(245,158,11,0.2)' : '';
             document.getElementById('noteModal').classList.add('active');
         }
 
@@ -794,7 +920,6 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
             currentNoteFavorite = !currentNoteFavorite;
             const favBtn = document.getElementById('favNoteBtn');
             favBtn.innerHTML = currentNoteFavorite ? '<i class="fas fa-star" style="color:#f59e0b;"></i> Unfavorite' : '<i class="far fa-star"></i> Favorite';
-            favBtn.style.background = currentNoteFavorite ? 'rgba(245,158,11,0.2)' : '';
         }
 
         function saveNote() {
@@ -823,14 +948,14 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
             if (selectedTagFilter) filtered = filtered.filter(v => v.tags && v.tags.includes(selectedTagFilter));
             if (searchText) {
                 const st = searchText.toLowerCase();
-                filtered = filtered.filter(v => 
-                    v.title.toLowerCase().includes(st) || 
-                    v.url.toLowerCase().includes(st) ||
-                    (v.note && v.note.toLowerCase().includes(st)) ||
-                    (v.tags && v.tags.some(t => t.toLowerCase().includes(st)))
-                );
+                filtered = filtered.filter(v => v.title.toLowerCase().includes(st) || v.url.toLowerCase().includes(st) || (v.note && v.note.toLowerCase().includes(st)) || (v.tags && v.tags.some(t => t.toLowerCase().includes(st))));
             }
             return sortVideos(filtered);
+        }
+
+        // Play video in new tab
+        function playVideo(url, title) {
+            window.open(url, '_blank');
         }
 
         function renderGrid() {
@@ -840,7 +965,8 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
             if (filtered.length === 0) { emptyDiv.style.display = 'block'; container.innerHTML = ''; return; }
             emptyDiv.style.display = 'none';
             container.innerHTML = '';
-            filtered.forEach(v => {
+            filtered.forEach((v, idx) => {
+                const isSelected = selectedVideoIds.has(v.id);
                 const playlistInfo = getPlaylistDisplay(v);
                 const hasNote = v.note && v.note.trim().length > 0;
                 const shortNote = hasNote ? (v.note.length > 50 ? v.note.substring(0,50)+'...' : v.note) : '';
@@ -848,7 +974,7 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
                 const noteHtml = hasNote ? `
                     <div class="note-section">
                         <div class="note-preview">
-                            <div class="note-preview-text ${v.favoriteNote ? 'favorite-note' : ''}" onclick="openNoteModal(${v.id})" title="${escapeHtml(v.note)}">
+                            <div class="note-preview-text ${v.favoriteNote ? 'favorite-note' : ''}" onclick="event.stopPropagation(); openNoteModal(${v.id})">
                                 ${noteIcon} ${escapeHtml(shortNote)}
                             </div>
                             <div class="note-actions">
@@ -857,7 +983,7 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
                             </div>
                         </div>
                     </div>
-                ` : `<div class="note-section" style="cursor:pointer;" onclick="openNoteModal(${v.id})"><i class="fas fa-pen-alt"></i> <span style="color:var(--text-secondary);">Add note...</span></div>`;
+                ` : `<div class="note-section" style="cursor:pointer;" onclick="event.stopPropagation(); openNoteModal(${v.id})"><i class="fas fa-pen-alt"></i> <span style="color:var(--text-secondary);">Add note...</span></div>`;
                 
                 const tagsHtml = (v.tags && v.tags.length > 0) ? `
                     <div class="tags-container">
@@ -867,15 +993,23 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
                 ` : `<div class="tags-container"><button class="add-tag-btn" onclick="event.stopPropagation(); openTagModal(${v.id})"><i class="fas fa-tag"></i> Add tag</button></div>`;
                 
                 const card = document.createElement('div');
-                card.className = 'video-card-mod';
+                card.className = `video-card-mod ${isSelected ? 'selected' : ''}`;
+                card.onclick = (e) => {
+                    if (e.target.closest('.icon-btn') || e.target.closest('.note-btn-sm') || e.target.closest('.tag') || e.target.closest('.add-tag-btn') || e.target.closest('.playlist-label')) return;
+                    handleVideoSelection(v.id, e, idx);
+                };
+                card.oncontextmenu = (e) => {
+                    showContextMenu(e, v.id);
+                    return false;
+                };
                 card.innerHTML = `
-                    <div class="card-media" onclick="playVideo('${v.url.replace(/'/g, "\\'")}', '${escapeHtml(v.title)}')">
+                    <div class="card-media" onclick="event.stopPropagation(); playVideo('${v.url.replace(/'/g, "\\'")}', '${escapeHtml(v.title)}')">
                         <img src="${v.thumbnail}" onerror="this.src='https://placehold.co/640x360/1e293b/ffffff?text=No+Preview'">
                         <div class="play-btn-overlay"><i class="fas fa-play-circle fa-2x"></i></div>
                     </div>
                     <div class="card-info">
                         <div class="title-row" title="${escapeHtml(v.title)}">${escapeHtml(v.title)}</div>
-                        ${playlistInfo ? `<div class="playlist-label" style="cursor:pointer;" onclick="document.getElementById('playlistSelectMain').value='${v.playlistId||'unassigned'}';switchPlaylist();"><i class="fas ${playlistInfo.icon}"></i> ${escapeHtml(playlistInfo.name)}</div>` : ''}
+                        ${playlistInfo ? `<div class="playlist-label" style="cursor:pointer;" onclick="event.stopPropagation(); document.getElementById('playlistSelectMain').value='${v.playlistId||'unassigned'}';switchPlaylist();"><i class="fas ${playlistInfo.icon}"></i> ${escapeHtml(playlistInfo.name)}</div>` : ''}
                         <div class="meta-row">
                             <span><i class="far fa-calendar"></i> ${v.date}</span>
                             <span><i class="fab fa-${v.platform === 'youtube' ? 'youtube' : (v.platform === 'vimeo' ? 'vimeo' : 'globe')}"></i> ${v.platform}</span>
@@ -883,15 +1017,16 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
                         ${tagsHtml}
                         ${noteHtml}
                         <div class="card-actions-row">
-                            <button class="icon-btn" onclick="copyLink('${v.url.replace(/'/g, "\\'")}')"><i class="fas fa-link"></i></button>
-                            <button class="icon-btn" onclick="openTagModal(${v.id})"><i class="fas fa-tags"></i></button>
-                            <button class="icon-btn" onclick="openNoteModal(${v.id})"><i class="fas fa-sticky-note"></i></button>
-                            <button class="icon-btn del" onclick="deleteVideoById(${v.id})"><i class="fas fa-trash"></i></button>
+                            <button class="icon-btn" onclick="event.stopPropagation(); copyLink('${v.url.replace(/'/g, "\\'")}')"><i class="fas fa-link"></i></button>
+                            <button class="icon-btn" onclick="event.stopPropagation(); openTagModal(${v.id})"><i class="fas fa-tags"></i></button>
+                            <button class="icon-btn" onclick="event.stopPropagation(); openNoteModal(${v.id})"><i class="fas fa-sticky-note"></i></button>
+                            <button class="icon-btn del" onclick="event.stopPropagation(); if(confirm('Delete this video?')) deleteVideoById(${v.id})"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
+            updateSelectionUI();
         }
 
         function getPlaylistDisplay(video) {
@@ -939,19 +1074,16 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
         }
         function getPlatform(url) { if (url.includes('youtube')||url.includes('youtu.be')) return 'youtube'; if (url.includes('vimeo')) return 'vimeo'; return 'other'; }
         function getThumb(url) { if (url.includes('v=')) return `https://img.youtube.com/vi/${url.split('v=')[1].split('&')[0]}/mqdefault.jpg`; if (url.includes('youtu.be/')) return `https://img.youtube.com/vi/${url.split('youtu.be/')[1].split('?')[0]}/mqdefault.jpg`; return 'https://placehold.co/640x360/1e293b/94a3b8?text=Media'; }
-        function playVideo(url, title) { const c = document.getElementById('videoPlayerContainer'); document.getElementById('videoPlayerTitle').textContent = title; let embed = ''; if (url.includes('youtube')||url.includes('youtu.be')) { let id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('youtu.be/')[1].split('?')[0]; embed = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" allowfullscreen></iframe>`; } else if (url.includes('vimeo')) { let id = url.split('vimeo.com/')[1].split('?')[0]; embed = `<iframe src="https://player.vimeo.com/video/${id}?autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;" allowfullscreen></iframe>`; } else { embed = `<video controls autoplay style="width:100%;height:100%;"><source src="${url}"></video>`; } c.innerHTML = embed; document.getElementById('videoPlayerModal').classList.add('active'); }
         function closeVideoPlayer() { document.getElementById('videoPlayerContainer').innerHTML = ''; document.getElementById('videoPlayerModal').classList.remove('active'); }
         function copyLink(u) { navigator.clipboard.writeText(u); toast('Link copied'); }
-        function deleteVideoById(id) { if (confirm('Delete this video?')) { videos = videos.filter(v => v.id !== id); currentUserObj.videos = videos; saveFullDB(); renderTagFilterBar(); renderGrid(); toast('Video removed'); } }
+        function deleteVideoById(id) { if (confirm('Delete this video?')) { videos = videos.filter(v => v.id !== id); if(selectedVideoIds.has(id)) selectedVideoIds.delete(id); currentUserObj.videos = videos; saveFullDB(); renderTagFilterBar(); renderGrid(); toast('Video removed'); } }
         function deleteNote(videoId) { if (confirm('Delete note?')) { const v = videos.find(v => v.id === videoId); if(v){ v.note = ''; v.favoriteNote = false; saveFullDB(); renderGrid(); toast('Note deleted'); } } }
         function setFilter(type, btn) { currentFilterType = type; document.querySelectorAll('.pill').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderGrid(); }
         function filterAndRender() { searchText = document.getElementById('globalSearch').value.toLowerCase(); renderGrid(); }
-        function switchPlaylist() { currentPlaylistId = document.getElementById('playlistSelectMain').value; renderGrid(); }
+        function switchPlaylist() { currentPlaylistId = document.getElementById('playlistSelectMain').value; selectedVideoIds.clear(); updateSelectionUI(); renderGrid(); }
         function renderPlaylistSelectors() { const sel = document.getElementById('playlistSelectMain'); while(sel.options.length>2) sel.remove(2); Object.keys(playlists).forEach(pid => sel.add(new Option(playlists[pid].name, pid))); sel.value = currentPlaylistId; const moveSel = document.getElementById('moveSelectPlaylist'); if(moveSel){ moveSel.innerHTML='<option value="unassigned">Unassigned</option>'; Object.keys(playlists).forEach(pid => moveSel.add(new Option(playlists[pid].name, pid))); } }
-        function confirmMove() { const target = document.getElementById('moveSelectPlaylist').value; selectedVideoIds.forEach(id => { const v = videos.find(v => v.id === id); if(v) v.playlistId = target; }); selectedVideoIds.clear(); saveFullDB(); renderGrid(); closeModal('moveModal'); toast('Moved'); }
-        let selectedVideoIds = new Set();
-        function moveSelected() { if(selectedVideoIds.size===0) return toast('Select videos first','error'); renderPlaylistSelectors(); document.getElementById('moveModal').classList.add('active'); }
-        function clearSelections() { selectedVideoIds.clear(); renderGrid(); }
+        function confirmMove() { const target = document.getElementById('moveSelectPlaylist').value; const selectedIdsArray = Array.from(selectedVideoIds); for (let vidId of selectedIdsArray) { const v = videos.find(v => v.id === vidId); if(v) v.playlistId = target; } selectedVideoIds.clear(); updateSelectionUI(); saveFullDB(); renderGrid(); closeModal('moveModal'); toast(`Moved ${selectedIdsArray.length} videos`); }
+        function openMoveModal() { renderPlaylistSelectors(); document.getElementById('moveModal').classList.add('active'); }
         function renameCurrentPlaylist() { if(currentPlaylistId==='all'||currentPlaylistId==='unassigned') return toast('Cannot rename default','error'); document.getElementById('renamePlaylistInput').value=playlists[currentPlaylistId]?.name||''; document.getElementById('renamePlaylistModal').classList.add('active'); }
         function confirmRenamePlaylist() { const newName = document.getElementById('renamePlaylistInput').value.trim(); if(!newName) return; playlists[currentPlaylistId].name=newName; saveFullDB(); renderPlaylistSelectors(); renderGrid(); closeModal('renamePlaylistModal'); toast('Renamed'); }
         function deleteCurrentPlaylist() { if(currentPlaylistId==='all'||currentPlaylistId==='unassigned') return; if(confirm('Delete playlist?')){ videos.forEach(v=>{if(v.playlistId===currentPlaylistId) v.playlistId='unassigned';}); delete playlists[currentPlaylistId]; saveFullDB(); currentPlaylistId='all'; renderPlaylistSelectors(); renderGrid(); toast('Playlist deleted'); } }
@@ -1019,7 +1151,6 @@ document.getElementById("globalSearch").addEventListener('keydown', function(eve
         async function sha256(m){ const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(m)); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
         function handleUrlKeydown(e){ if(e.key==='Enter') addVideo(); }
         
-        // Setup avatar editor sliders
         document.addEventListener('DOMContentLoaded', () => {
             const zoomSlider = document.getElementById('cropZoom');
             if (zoomSlider) zoomSlider.addEventListener('input', () => drawSimpleCrop());
