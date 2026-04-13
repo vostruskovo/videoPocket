@@ -892,6 +892,15 @@
             if(db.currentUser&&db.users[db.currentUser]){ document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').classList.add('visible'); loadUser(); }
             else document.getElementById('appContainer').classList.remove('visible');
         });
+
+
+        document.getElementById("videoTitle").addEventListener('keydown',(event)=>{
+            if(event.key==='Enter')
+            {
+                event.preventDefault();
+                addVideo();
+            }
+        });
     </script>
 </body>
 </html>
